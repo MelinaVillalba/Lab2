@@ -1,0 +1,224 @@
+#include <iostream> // Funciones de salida
+#include <windows.h> // Nos deja definir la funcion gotoxy
+#include <conio.h> // Tiempos
+#include <stdlib.h>
+#include <SFML/Graphics.hpp>
+// Numeros asociados a Flechas
+#define ARRIBA       72
+#define IZQUIERDA 75
+#define DERECHA    77
+#define ABAJO        80
+#define ESC            27
+using namespace std;
+
+//Variables globales
+int cuerpo[200][2] ={} ;
+int n = 1; // n va a cambiar cada iteracion
+int tamanio = 3;
+char tecla;
+int x = 10;
+int y = 12;
+int direccion = 3;
+int coordX_Comida = 30, coordY_Comida = 15;
+int velocidad = 100;
+int incremento_vel = 1;
+int score = 0;
+
+void gotoxy(int x, int y) // Funcion que posiciona cursor
+{
+    HANDLE hCon;
+    COORD dwPos;
+
+    dwPos.X = x;
+    dwPos.Y = y;
+    hCon = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorPosition(hCon, dwPos);
+}
+
+
+//Funcion para mostrar limites del juego
+void limites()
+{
+    //Lineas horizontales
+
+    for (int  i=2; i<78; i++)
+    {
+        gotoxy(i, 3); printf("%c", 205); // Caracteres de ASCII // ineas horizontales superiores
+        gotoxy (i,23); printf("%c", 205); // lineas horizontales inferiores
+    }
+
+
+    //Lineas verticales
+    for (int  i=4; i<23; i++)
+    {
+        gotoxy(2, i); printf("%c", 186); // Caracteres de ASCII // lineas verticales izquierdas
+        gotoxy (77,i); printf("%c", 186); // lineas verticales derechas
+    }
+
+    //Esquinas
+
+      gotoxy(2, 3); printf("%c", 201); //Esquina izquierda superior
+      gotoxy(2, 23); printf("%c", 200);  //Esquina derecha superior
+      gotoxy(77, 3); printf("%c", 187);  //Esquina izquierda inferior
+      gotoxy(77, 23); printf("%c", 188);  //Esquina derecha inferior
+
+}
+
+void guardar_posicion()
+{
+    cuerpo[n][0] = x;
+    cuerpo[n][1] = y;
+    n ++;
+    if(n == tamanio)
+        {
+            n = 1;
+        }
+
+}
+
+void mostrar_cuerpo()
+{
+    for(int x = 1; x<tamanio; x++)
+    {
+        gotoxy(cuerpo[x][0], cuerpo[x][1]);
+        printf("*");
+    }
+}
+
+void borrar_cuerpo()
+{
+
+        gotoxy(cuerpo[n][0], cuerpo[n][1]);
+        printf(" ");
+
+}
+
+void movimiento()
+{
+                    if(kbhit())
+                    {
+                        tecla = getch(); //getch hace que se tome el valor de la tecla que se presiono antes
+                        switch(tecla)
+                            {
+                                case ARRIBA:
+
+                                    if (direccion !=2)
+                                        {
+                                             direccion = 1;
+                                        }
+                                        break;
+                                case ABAJO:
+                                     if (direccion !=1)
+                                        {
+                                             direccion = 2;
+                                        }
+                                    break;
+                                case  DERECHA:
+                                     if (direccion !=4)
+                                        {
+                                             direccion = 3;
+                                        }
+                                    break;
+                                case IZQUIERDA:
+                                     if (direccion !=3)
+                                        {
+                                             direccion = 4;
+                                        }
+                                    break;
+                            }
+                    }
+
+                    if (direccion == 1)
+                        {
+                            y --;
+                        }
+
+                    if (direccion == 2)
+                        {
+                            y++;
+                        }
+                    if (direccion == 3)
+                        {
+                            x++;
+                        }
+                    if (direccion == 4)
+                        {
+                            x --;
+                        }
+}
+
+void aumento_velocidad()
+{
+    if (score == incremento_vel % 20)
+    {
+        velocidad -= 10;
+        incremento_vel ++;
+    }
+}
+
+void comida()
+{
+    if(x==coordX_Comida  && y == coordY_Comida)
+        {
+            coordX_Comida = (rand()%73)+4;
+            coordY_Comida = (rand()%19)+4;
+            tamanio++;
+            score+=10;
+            gotoxy(coordX_Comida, coordY_Comida);
+            printf("%c", 4);
+            aumento_velocidad();
+
+
+        }
+
+
+}
+
+bool gameOver()
+{
+    if(y==3 || y == 23 || x == 2 || x == 77) // si se choca con un muro
+        {
+                return false;
+        }
+
+        for(int i = tamanio - 1; i>0; i--)
+            {
+                if (cuerpo[i][0]== x && cuerpo[i][1]== y)
+                    {
+                        return false;
+                    }
+            }
+        return true;
+}
+
+void puntaje()
+{
+    gotoxy(3, 1);
+    printf("score %d", score);
+
+}
+
+int main()
+{
+    limites();
+    gotoxy(coordX_Comida, coordY_Comida);
+    printf("%c", 4);
+
+    //Si apretas ESC o chocas con una pared se termina el juego
+    while(tecla != ESC && gameOver())
+        {
+                borrar_cuerpo();
+                guardar_posicion();
+                mostrar_cuerpo();
+                comida();
+                puntaje();
+                movimiento();
+                movimiento();
+
+                Sleep(velocidad);
+        }
+
+    limites();
+    system("pause>null");
+    return 0;
+}
