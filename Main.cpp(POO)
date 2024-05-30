@@ -1,0 +1,70 @@
+#include <iostream>
+#include <windows.h>
+#include <SFML/Graphics.hpp>
+#include <cstdlib>
+#include "Snake.h"
+
+using namespace std;
+
+void gotoxy(int x, int y) // Funcion que posiciona cursor
+{
+    HANDLE hCon;
+    COORD dwPos;
+
+    dwPos.X = x;
+    dwPos.Y = y;
+    hCon = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorPosition(hCon, dwPos);
+}
+
+
+
+int main()
+{
+    //Inicializacion de la ventana
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Snake");
+    //Obligamos al juego a ir en un limite de 60fps
+    window.setFramerateLimit(60);
+    //    Sprite es igual a un pedazo de imagen
+    sf::Sprite personaje;
+    //sf::Sprite cuerpo;
+    sf::Texture  personaje_text;
+    //sf::Texture  cuerpo_text;
+    float velocidad = 3;
+    Snake snake;
+
+/*
+   // cuerpo_text.loadFromFile("Assets/cuerpo.bmp");
+
+    personaje_text.loadFromFile("Assets/cabeza.bmp");
+
+    //Ahora el sprite esta cargado con la imagen
+    personaje.setTexture(personaje_text);
+    //personaje.setTexture(cuerpo_text);
+
+*/
+
+    //Game Loop
+    while (window.isOpen())
+    {
+        // Read  Input
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+
+
+
+        window.clear();
+        snake.draw(window);
+        //window.draw(personaje);
+        //window.draw(cuerpo);
+
+        window.display();
+    }
+
+    //Liberacion del juego
+    return 0;
+}
